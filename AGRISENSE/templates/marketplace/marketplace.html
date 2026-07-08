@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Marketplace - AGRISENSE{% endblock %}
+
+{% block content %}
+<div class="container marketplace-container animate-fade-in">
+    <div class="page-header">
+        <h1>🛒 Marketplace</h1>
+        <p class="text-muted text-lg">Browse and discover fresh agricultural products</p>
+    </div>
+
+    <!-- Search and Filter Bar -->
+    <div class="filter-bar glass-panel mb-4 mt-3">
+        <div class="filter-grid">
+            <div class="search-group">
+                <label for="searchInput" class="fw-600 mb-1 d-block">Search Listings</label>
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    class="form-control"
+                    placeholder="Search by crop name or variety..."
+                >
+            </div>
+            <div class="sort-group">
+                <label for="sortSelect" class="fw-600 mb-1 d-block">Sort by</label>
+                <select id="sortSelect" onchange="sortListings(this.value)" class="form-control">
+                    <option value="newest">Newest First</option>
+                    <option value="price-low">Price: Low to High</option>
+                    <option value="price-high">Price: High to Low</option>
+                </select>
+            </div>
+        </div>
+        <div class="filter-status mt-2 pt-2 divider-top">
+            <p class="text-muted m-0 text-sm">
+                Showing <span class="fw-700 text-primary" id="listingCount">{{ listings|length }}</span> listings
+            </p>
+        </div>
+    </div>
+
+    <!-- Listings Grid -->
+    {% if listings %}
+        <div class="listings">
+            {% for listing in listings %}
+            <div class="listing card-hover">
+                <div class="listing-image-wrapper">
+                    {% if listing.image %}
+                        <img src="{{ listing.image.url }}" alt="{{ listing.crop_name }}" class="listing-image">
+                    {% else %}
+                        <div class="listing-image placeholder">
+                            <span>🌾</span>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="listing-content">
+                    <div class="listing-header">
+                        <h3 class="listing-title">{{ listing.crop_name }}</h3>
+                        <span class="listing-price">₹{{ listing.expected_price }}</span>
+                    </div>
+                    <p class="listing-variety">{{ listing.variety }}</p>
+                    
+                    <div class="listing-details divider-top pt-2 mt-2">
+                        <div class="detail-item"><span class="icon">📦</span> <strong>{{ listing.quantity }}</strong> {{ listing.quantity_unit }}</div>
+                        <div class="detail-item"><span class="icon">📍</span> {{ listing.location }}</div>
+                        <div class="detail-item"><span class="icon">👤</span> {{ listing.seller.username }}</div>
+                    </div>
+                    
+                    <div class="listing-actions mt-3">
+                        <button class="btn btn-primary btn-sm outline" onclick="viewTrend({{ listing.id }})" title="View price trend">📈 Trend</button>
+                        <button class="btn btn-primary btn-sm" onclick="contactSeller({{ listing.id }})" title="Contact seller">💬 Contact</button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state glass-panel mt-4">
+            <div class="empty-state-icon bounce">📭</div>
+            <h2>No Listings Found</h2>
+            <p>There are currently no listings in the marketplace. Check back soon!</p>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Modals -->
+<div id="trendModal" class="modal">
+    <div class="modal-content glass-modal">
+        <span class="close" onclick="closeModal('trendModal')">&times;</span>
+        <h2>Price Trend (Last 7 Days)</h2>
+        <div class="chart-container mt-2">
+            <canvas id="priceChart"></canvas>
+        </div>
+        <p id="stats" class="trend-stats mt-2"></p>
+    </div>
+</div>
+
+<div id="contactModal" class="modal">
+    <div class="modal-content glass-modal">
+        <span class="close" onclick="closeModal('contactModal')">&times;</span>
+        <div id="contactContent" class="mt-2"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Update listing count when filtering
+    document.addEventListener("DOMContentLoaded", function() {
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            const originalFilterListings = window.filterListings;
+            window.filterListings = function() {
+                if(originalFilterListings) originalFilterListings();
+                const visibleListings = document.querySelectorAll('.listing:not([style*="display: none"])').length;
+                const countEl = document.getElementById('listingCount');
+                if(countEl) countEl.textContent = visibleListings;
+            };
+        }
+    });
+</script>
+{% endblock %}

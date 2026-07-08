@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Seller Dashboard - AGRISENSE{% endblock %}
+
+{% block content %}
+<div class="container dashboard-container animate-fade-in">
+    <div class="page-header mb-3">
+        <h1>📊 Your Seller Dashboard</h1>
+        <p class="text-muted text-lg mt-1">Manage your crop listings and track your inventory</p>
+    </div>
+
+    <!-- Dashboard Statistics -->
+    <div class="stats-grid mb-4">
+        <div class="stat-mini primary-gradient">
+            <div class="stat-mini-value">{{ listings|length }}</div>
+            <div class="stat-mini-label">Active Listings</div>
+        </div>
+        <div class="stat-mini secondary-gradient">
+            <div class="stat-mini-value">{{ listings|length }}</div>
+            <div class="stat-mini-label">Total Products</div>
+        </div>
+    </div>
+
+    <!-- Two Column Layout -->
+    <div class="dashboard-content">
+        <!-- Add New Listing Form -->
+        <div class="dashboard-section glass-panel">
+            <h2 class="section-title">➕ Add New Crop Listing</h2>
+            <form method="post" enctype="multipart/form-data" class="styled-form mt-3">
+                {% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                    <div class="alert alert-error">
+                        {% for error in form.non_field_errors %}
+                            <p class="m-0">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                {% for field in form %}
+                    <div class="form-group">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="form-error">
+                                {% for error in field.errors %}
+                                    <p class="m-0">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <button type="submit" class="btn btn-primary btn-block btn-lg mt-3">📤 Add Listing</button>
+            </form>
+        </div>
+
+        <!-- Quick Info -->
+        <div class="dashboard-section glass-panel sticky-sidebar">
+            <h2 class="section-title">💡 Quick Tips</h2>
+            <div class="tips-list mt-3">
+                <div class="tip-item">
+                    <span class="tip-icon">📸</span>
+                    <div class="tip-content">
+                        <strong>Product Images</strong>
+                        <p class="text-muted m-0 text-sm mt-1">Add clear, high-quality photos of your crops for better visibility.</p>
+                    </div>
+                </div>
+                <div class="tip-item mt-3">
+                    <span class="tip-icon">💰</span>
+                    <div class="tip-content">
+                        <strong>Pricing</strong>
+                        <p class="text-muted m-0 text-sm mt-1">Keep prices competitive by checking recent market trends.</p>
+                    </div>
+                </div>
+                <div class="tip-item mt-3">
+                    <span class="tip-icon">📝</span>
+                    <div class="tip-content">
+                        <strong>Accurate Details</strong>
+                        <p class="text-muted m-0 text-sm mt-1">Provide detailed descriptions of crop variety, quantity, and quality.</p>
+                    </div>
+                </div>
+                <div class="tip-item mt-3">
+                    <span class="tip-icon">🎯</span>
+                    <div class="tip-content">
+                        <strong>Regular Updates</strong>
+                        <p class="text-muted m-0 text-sm mt-1">Update your listings regularly to maintain buyer interest.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Your Listings Section -->
+    <div class="dashboard-section glass-panel mt-4">
+        <h2 class="section-title">📦 Your Active Listings</h2>
+        
+        {% if listings %}
+            <div class="listings dashboard-listings mt-3">
+                {% for listing in listings %}
+                <div class="listing card-hover">
+                    <div class="listing-image-wrapper">
+                        {% if listing.image %}
+                            <img src="{{ listing.image.url }}" alt="{{ listing.crop_name }}" class="listing-image">
+                        {% else %}
+                            <div class="listing-image placeholder">
+                                <span>🌾</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="listing-content">
+                        <div class="listing-header">
+                            <h3 class="listing-title">{{ listing.crop_name }}</h3>
+                            <span class="listing-price">₹{{ listing.expected_price }}</span>
+                        </div>
+                        <p class="listing-variety">{{ listing.variety }}</p>
+                        
+                        <div class="listing-details divider-top pt-2 mt-2">
+                            <div class="detail-item"><span class="icon">📦</span> {{ listing.quantity }} {{ listing.quantity_unit }}</div>
+                            <div class="detail-item"><span class="icon">📍</span> {{ listing.location }}</div>
+                            <div class="detail-item"><span class="icon">📅</span> {{ listing.created_at|date:"M d, Y" }}</div>
+                        </div>
+                        
+                        <div class="listing-actions mt-3">
+                            <button class="btn btn-secondary btn-sm outline disabled" disabled title="Coming soon">✏️ Edit</button>
+                            <button class="btn btn-danger btn-sm outline disabled" disabled title="Coming soon">🗑️ Delete</button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state mt-3">
+                <div class="empty-state-icon bounce">📭</div>
+                <h3>No Listings Yet</h3>
+                <p>You haven't added any crop listings. Add your first listing using the form above!</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="text-center mt-4 mb-2 action-buttons">
+        <a href="{% url 'marketplace' %}" class="btn btn-primary btn-lg outline me-2">View Marketplace</a>
+        <a href="{% url 'home' %}" class="btn btn-secondary btn-lg">Back to Home</a>
+    </div>
+</div>
+{% endblock %}

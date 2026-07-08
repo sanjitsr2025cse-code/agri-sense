@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Register - AGRISENSE{% endblock %}
+
+{% block content %}
+<div class="form-container glass-panel animate-fade-in">
+    <div class="form-header text-center">
+        <h1>Join AGRISENSE</h1>
+        <p class="text-muted">Create your account to start trading</p>
+    </div>
+
+    <form method="post" onsubmit="return validateForm('registerForm')" class="styled-form">
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+            <div class="alert alert-error">
+                {% for error in form.non_field_errors %}
+                    <p class="m-0">{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                    <div class="form-error">
+                        {% for error in field.errors %}
+                            <p class="m-0">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                {% if field.help_text %}
+                    <small class="form-help text-muted">{{ field.help_text|safe }}</small>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg mt-3">Create Account</button>
+    </form>
+
+    <div class="form-footer text-center mt-3">
+        <p class="text-muted">Already have an account? <a href="{% url 'login' %}" class="link-primary fw-600">Login here</a></p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero">
+    <div class="hero-content">
+        <h1>Welcome to <span class="highlight">AGRISENSE</span></h1>
+        <p class="hero-subtitle">Your trusted platform for agricultural commerce</p>
+        <p class="hero-description">Connect buyers and sellers, explore market trends, and grow your agricultural business with our modern platform.</p>
+        <div class="hero-buttons">
+            {% if user.is_authenticated %}
+                <a href="{% url 'marketplace' %}" class="btn btn-primary btn-lg">Browse Marketplace</a>
+                {% if user.is_seller %}
+                    <a href="{% url 'seller_dashboard' %}" class="btn btn-secondary btn-lg btn-outline">Manage Listings</a>
+                {% endif %}
+            {% else %}
+                <a href="{% url 'register' %}" class="btn btn-primary btn-lg">Get Started</a>
+                <a href="{% url 'login' %}" class="btn btn-secondary btn-lg btn-outline">Login</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="hero-backdrop"></div>
+</div>
+
+<div class="container section-container">
+    <!-- Statistics Section -->
+    {% if listings_count > 0 or sellers_count > 0 %}
+    <div class="stats glass-panel">
+        <div class="stat-card">
+            <div class="stat-icon">📈</div>
+            <div class="stat-number">{{ listings_count }}</div>
+            <div class="stat-label">Active Listings</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🤝</div>
+            <div class="stat-number">{{ sellers_count }}</div>
+            <div class="stat-label">Verified Sellers</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🎧</div>
+            <div class="stat-number">24/7</div>
+            <div class="stat-label">Customer Support</div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Featured Listings Section -->
+    {% if recent_listings %}
+    <section class="featured-section">
+        <div class="section-header">
+            <h2>Featured Listings</h2>
+            <p>Discover the freshest crops available right now</p>
+        </div>
+        <div class="listings">
+            {% for listing in recent_listings %}
+            <div class="listing card-hover">
+                <div class="listing-image-wrapper">
+                    {% if listing.image %}
+                        <img src="{{ listing.image.url }}" alt="{{ listing.crop_name }}" class="listing-image">
+                    {% else %}
+                        <div class="listing-image placeholder">
+                            <span>🌾</span>
+                        </div>
+                    {% endif %}
+                    <div class="listing-badge">Featured</div>
+                </div>
+                <div class="listing-content">
+                    <div class="listing-header">
+                        <h3 class="listing-title">{{ listing.crop_name }}</h3>
+                        <span class="listing-price">₹{{ listing.expected_price }}</span>
+                    </div>
+                    <p class="listing-variety">{{ listing.variety }}</p>
+                    <div class="listing-details">
+                        <div class="detail-item"><span class="icon">📦</span> {{ listing.quantity }} {{ listing.quantity_unit }}</div>
+                        <div class="detail-item"><span class="icon">📍</span> {{ listing.location }}</div>
+                    </div>
+                    <div class="listing-actions">
+                        {% if user.is_authenticated %}
+                            <button class="btn btn-primary btn-sm outline" onclick='viewTrend({{ listing.id }})'>📈 Trend</button>
+                            <button class="btn btn-primary btn-sm" onclick='contactSeller({{ listing.id }})'>💬 Contact</button>
+                        {% else %}
+                            <a href="{% url 'login' %}" class="btn btn-primary btn-sm btn-block">View Details</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% if user.is_authenticated %}
+        <div class="text-center mt-4">
+            <a href="{% url 'marketplace' %}" class="btn btn-secondary btn-lg">View All Listings ➔</a>
+        </div>
+        {% endif %}
+    </section>
+    {% else %}
+    <section class="empty-state glass-panel">
+        <div class="empty-state-icon bounce">🌾</div>
+        <h2>No Listings Yet</h2>
+        <p>Be the first seller to post a crop listing and start trading!</p>
+        {% if user.is_authenticated and user.is_seller %}
+            <a href="{% url 'seller_dashboard' %}" class="btn btn-primary btn-lg mt-2">Add First Listing</a>
+        {% endif %}
+    </section>
+    {% endif %}
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <div class="section-header">
+            <h2>Why Choose AGRISENSE?</h2>
+            <p>We provide the best tools for agricultural commerce</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card card-hover">
+                <div class="feature-icon">📊</div>
+                <h3>Real-time Market Data</h3>
+                <p>Track price trends with 7-day charts and historical data analysis</p>
+            </div>
+            <div class="feature-card card-hover">
+                <div class="feature-icon">✅</div>
+                <h3>Verified Sellers</h3>
+                <p>Trade with confidence using our verified seller network</p>
+            </div>
+            <div class="feature-card card-hover">
+                <div class="feature-icon">💬</div>
+                <h3>Direct Communication</h3>
+                <p>Connect directly with buyers and sellers through integrated messaging</p>
+            </div>
+            <div class="feature-card card-hover">
+                <div class="feature-icon">🚀</div>
+                <h3>Easy to Use</h3>
+                <p>A simple and intuitive interface for all agricultural professionals</p>
+            </div>
+            <div class="feature-card card-hover">
+                <div class="feature-icon">🛡️</div>
+                <h3>Secure Transactions</h3>
+                <p>Your data and transactions are protected with enterprise-grade security</p>
+            </div>
+            <div class="feature-card card-hover">
+                <div class="feature-icon">🌍</div>
+                <h3>Global Reach</h3>
+                <p>Connect with agricultural traders and buyers from around the world</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    {% if not user.is_authenticated %}
+    <section class="cta-section gradient-panel drop-shadow">
+        <div class="cta-content">
+            <h2>Ready to Get Started?</h2>
+            <p>Join thousands of agricultural professionals on AGRISENSE today.</p>
+            <div class="cta-buttons">
+                <a href="{% url 'register' %}" class="btn btn-light btn-lg">Create an Account</a>
+                <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg">Sign In</a>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+</div>
+
+<!-- Modals -->
+<div id="trendModal" class="modal">
+    <div class="modal-content glass-modal">
+        <span class="close" onclick="closeModal('trendModal')">&times;</span>
+        <h2>Price Trend (Last 7 Days)</h2>
+        <div class="chart-container">
+            <canvas id="priceChart"></canvas>
+        </div>
+        <p id="stats" class="trend-stats"></p>
+    </div>
+</div>
+
+<div id="contactModal" class="modal">
+    <div class="modal-content glass-modal">
+        <span class="close" onclick="closeModal('contactModal')">&times;</span>
+        <div id="contactContent">
+            <!-- Content will be filled dynamically -->
+        </div>
+    </div>
+</div>
+{% endblock %}

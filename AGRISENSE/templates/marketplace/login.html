@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - AGRISENSE{% endblock %}
+
+{% block content %}
+<div class="form-container glass-panel animate-fade-in">
+    {% if error_message %}
+        <div class="alert alert-error">
+            <strong>Error:</strong> {{ error_message }}
+        </div>
+    {% endif %}
+
+    <div class="form-header text-center">
+        <h1>Welcome Back!</h1>
+        <p class="text-muted">Sign in to your AGRISENSE account</p>
+    </div>
+
+    <form method="post" onsubmit="return validateForm('loginForm')" class="styled-form">
+        {% csrf_token %}
+        {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+        
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required placeholder="Enter your username" class="form-control">
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required placeholder="Enter your password" class="form-control">
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg mt-2">Login</button>
+    </form>
+
+    <div class="form-footer text-center mt-3">
+        <p class="text-muted">Don't have an account? <a href="{% url 'register' %}" class="link-primary fw-600">Register here</a></p>
+    </div>
+</div>
+{% endblock %}
